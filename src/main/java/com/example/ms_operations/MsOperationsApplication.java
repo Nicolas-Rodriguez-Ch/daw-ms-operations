@@ -1,4 +1,3 @@
-data
 package com.example.ms_operations;
 
 import org.springframework.boot.SpringApplication;
