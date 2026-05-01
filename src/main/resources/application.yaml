@@ -4,10 +4,13 @@ spring:
 eureka:
   client:
     service-url:
-      default-zone: ${eureka_url:http://localhost:8761/eureka}
+      defaultZone: ${eureka_url:http://localhost:8761/eureka}
   instance:
     prefer-ip-address: true
     hostname: ms-operations
 
 vehicles-service:
   url: http://ms-vehicles/vehicles/%s
+
+server:
+  port: 8082
