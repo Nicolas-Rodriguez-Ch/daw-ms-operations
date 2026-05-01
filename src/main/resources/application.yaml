@@ -1,3 +1,10 @@
 spring:
   application:
     name: ms-operations
+eureka:
+  client:
+    service-url:
+      default-zone: ${eureka_url:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+    hostname: ms-operations
