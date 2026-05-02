@@ -1,6 +1,7 @@
 package com.example.ms_operations.facade;
 
 import com.example.ms_operations.model.request.VehicleRequest;
+import com.example.ms_operations.model.response.ReservationResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
@@ -18,39 +19,48 @@ public class VehiclesFacade {
 
   private final RestTemplate restTemplate;
 
-  public String reserve(VehicleRequest request) {
+  public ReservationResponse reserve(VehicleRequest request) {
     try {
       String url = String.format(vehiclesServiceUrl, "reserve");
       log.info("Calling reserve endpoint: {}", url);
-      String response = restTemplate.postForObject(url, request, String.class);
-      return response != null ? response : "Reservation created successfully";
+      ReservationResponse response = restTemplate.postForObject(url, request, ReservationResponse.class);
+      String message = "Reservation created successfully";
+      assert response != null;
+      return new ReservationResponse(message, response.getVehicle());
     } catch (HttpStatusCodeException e) {
       log.error("Http Error {}, vehicle with id: {}", e.getStatusCode(), request.getVehicle().getId());
-      return "Error creating reservation: " + e.getMessage();
+      String message = "Error creating reservation: " + e.getMessage();
+      return new ReservationResponse(message, request.getVehicle());
     }
   }
 
-  public String update(VehicleRequest request) {
+  public ReservationResponse update(VehicleRequest request) {
     try {
       String url = String.format(vehiclesServiceUrl, "update");
       log.info("Calling update endpoint: {}", url);
-      String response = restTemplate.postForObject(url, request, String.class);
-      return response != null ? response : String.format("Availability for vehicle with id: %d updated successfully", request.getVehicle().getId());
+      ReservationResponse response = restTemplate.postForObject(url, request, ReservationResponse.class);
+      String message = String.format("Availability for vehicle with id: %d updated successfully", request.getVehicle().getId());
+      assert response != null;
+      return new ReservationResponse(message, response.getVehicle());
     } catch (HttpStatusCodeException e) {
-      log.error("Http error {} updating the availability of vehicle with id: {}", e, request.getVehicle().getId());
-      return String.format("Error %s updating availability of vehicle with id: %d", e, request.getVehicle().getId());
+      log.error("Http error {} updating the availability of vehicle with id: {}", e.getMessage(), request.getVehicle().getId());
+      String message = String.format("Error %s updating availability of vehicle with id: %d", e.getMessage(), request.getVehicle().getId());
+      return new ReservationResponse(message, request.getVehicle());
     }
   }
 
-  public String cancel(VehicleRequest request) {
+  public ReservationResponse cancel(VehicleRequest request) {
     try {
       String url = String.format(vehiclesServiceUrl, "cancel");
       log.info("Calling cancel endpoint: {}", url);
-      String response = restTemplate.postForObject(url, request, String.class);
-      return response != null ? response : String.format("Reservation for vehicle with id: %d cancelled successfully", request.getVehicle().getId());
+      ReservationResponse response = restTemplate.postForObject(url, request, ReservationResponse.class);
+      String message = String.format("Reservation for vehicle with id: %d cancelled successfully", request.getVehicle().getId());
+      assert response != null;
+      return new ReservationResponse(message, response.getVehicle());
     } catch (HttpStatusCodeException e) {
-      log.error("Http Error {} cancelling reservation for vehicle  with id: {}", e.getMessage(), request.getVehicle().getId());
-      return String.format("Error %s cancelling request of vehicle with id: %d", e, request.getVehicle().getId());
+      log.error("Http Error {} cancelling reservation for vehicle with id: {}", e.getMessage(), request.getVehicle().getId());
+      String message = String.format("Error %s cancelling request of vehicle with id: %d", e.getMessage(), request.getVehicle().getId());
+      return new ReservationResponse(message, request.getVehicle());
     }
   }
 }
