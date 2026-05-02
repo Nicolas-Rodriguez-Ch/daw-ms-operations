@@ -10,7 +10,7 @@ eureka:
     hostname: ms-operations
 
 vehicles-service:
-  url: http://localhost:8081/vehicles/%s
+  url: http://ms-vehicles/vehicles/%s
 
 server:
   port: 8082

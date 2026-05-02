@@ -23,9 +23,10 @@ public class VehiclesFacade {
     try {
       String url = String.format(vehiclesServiceUrl, "reserve");
       log.info("Calling reserve endpoint: {}", url);
-      String response = restTemplate.postForObject(url, request, String.class);
-      String message = response != null ? response : "Reservation created successfully";
-      return new ReservationResponse(message, request.getVehicle());
+      ReservationResponse response = restTemplate.postForObject(url, request, ReservationResponse.class);
+      String message = "Reservation created successfully";
+      assert response != null;
+      return new ReservationResponse(message, response.getVehicle());
     } catch (HttpStatusCodeException e) {
       log.error("Http Error {}, vehicle with id: {}", e.getStatusCode(), request.getVehicle().getId());
       String message = "Error creating reservation: " + e.getMessage();
@@ -37,9 +38,10 @@ public class VehiclesFacade {
     try {
       String url = String.format(vehiclesServiceUrl, "update");
       log.info("Calling update endpoint: {}", url);
-      String response = restTemplate.postForObject(url, request, String.class);
-      String message = response != null ? response : String.format("Availability for vehicle with id: %d updated successfully", request.getVehicle().getId());
-      return new ReservationResponse(message, request.getVehicle());
+      ReservationResponse response = restTemplate.postForObject(url, request, ReservationResponse.class);
+      String message = String.format("Availability for vehicle with id: %d updated successfully", request.getVehicle().getId());
+      assert response != null;
+      return new ReservationResponse(message, response.getVehicle());
     } catch (HttpStatusCodeException e) {
       log.error("Http error {} updating the availability of vehicle with id: {}", e.getMessage(), request.getVehicle().getId());
       String message = String.format("Error %s updating availability of vehicle with id: %d", e.getMessage(), request.getVehicle().getId());
@@ -51,9 +53,10 @@ public class VehiclesFacade {
     try {
       String url = String.format(vehiclesServiceUrl, "cancel");
       log.info("Calling cancel endpoint: {}", url);
-      String response = restTemplate.postForObject(url, request, String.class);
-      String message = response != null ? response : String.format("Reservation for vehicle with id: %d cancelled successfully", request.getVehicle().getId());
-      return new ReservationResponse(message, request.getVehicle());
+      ReservationResponse response = restTemplate.postForObject(url, request, ReservationResponse.class);
+      String message = String.format("Reservation for vehicle with id: %d cancelled successfully", request.getVehicle().getId());
+      assert response != null;
+      return new ReservationResponse(message, response.getVehicle());
     } catch (HttpStatusCodeException e) {
       log.error("Http Error {} cancelling reservation for vehicle with id: {}", e.getMessage(), request.getVehicle().getId());
       String message = String.format("Error %s cancelling request of vehicle with id: %d", e.getMessage(), request.getVehicle().getId());
