@@ -2,125 +2,111 @@
 
 ## ✅ What's Been Implemented
 
-### 1. **ReservationsImpl.java** - Service Implementation
-Complete implementation of the `Reservations` interface with three methods:
-- ✅ `createReservation()` - Reserves vehicles and calls ms-vehicles
-- ✅ `updateReservation()` - Updates availability status
-- ✅ `cancelReservation()` - Cancels existing reservations
-- ✅ Error handling for all methods
-- ✅ Uses RestTemplate for microservice communication
-- ✅ Includes detailed JavaDoc comments
+### 1. **VehicleService.java & VehicleServiceImpl.java** - Service Layer
+Interface and implementation with three core methods:
+- ✅ `createReservation()` - Reserves a vehicle
+- ✅ `updateReservation()` - Updates vehicle availability status
+- ✅ `cancelReservation()` - Cancels an existing reservation
+- ✅ Clean separation of concerns using facade pattern
+- ✅ Dependency injection with Lombok `@RequiredArgsConstructor`
 
-### 2. **ReservationController.java** - REST Endpoints
-Complete REST controller with endpoints:
-- ✅ `POST /api/reservations/create` - Create reservation
-- ✅ `POST /api/reservations/update-availability` - Update availability  
-- ✅ `POST /api/reservations/cancel` - Cancel reservation
-- ✅ HTTP status code handling (200, 500)
-- ✅ Error messages and logging
-- ✅ Request/response documentation in JavaDoc
+### 2. **VehiclesFacade.java** - Microservice Communication Layer
+Handles all REST communication with ms-vehicles:
+- ✅ `reserve()` - Calls POST `/vehicles/reserve`
+- ✅ `update()` - Calls POST `/vehicles/update`
+- ✅ `cancel()` - Calls POST `/vehicles/cancel`
+- ✅ `@Value` reads URL from `application.yaml`
+- ✅ `HttpStatusCodeException` error handling for 4xx and 5xx responses
+- ✅ Structured logging with `@Slf4j`
 
-### 3. **ReservationResponse.java** - Response Model
-Professional response structure with:
-- ✅ `success` (boolean) - Operation status
-- ✅ `message` (String) - User-friendly message
-- ✅ `data` (Object) - Additional data if needed
-- ✅ Multiple constructors for flexibility
+### 3. **ReservationController.java** - REST Endpoints
+REST controller with three endpoints:
+- ✅ `POST /create-reservation` - Create a vehicle reservation
+- ✅ `POST /update-availability` - Update vehicle status
+- ✅ `POST /cancel-reservation` - Cancel a reservation
+- ✅ Error handling with proper HTTP status codes
+- ✅ Injects VehicleService for business logic
+
+### 4. **VehicleRequest.java** - Request Model
+Data transfer object for incoming requests:
+- ✅ Single `vehicle` field (not a list)
+- ✅ Contains full Vehicle object with id, model, brand, available status
 - ✅ Lombok annotations for clean code
+- ✅ Flexible structure for future expansion
 
-### 4. **IMPLEMENTATION_GUIDE.md** - Documentation
-Comprehensive guide covering:
-- ✅ Architecture overview
-- ✅ Component descriptions
-- ✅ Request/response examples
-- ✅ Configuration instructions
-- ✅ What the other microservice should provide
-- ✅ Testing instructions with curl commands
-- ✅ Java/Spring concepts explained
+### 5. **Vehicle.java** - Vehicle Model
+POJO representing a vehicle:
+- ✅ `id` - Vehicle identifier
+- ✅ `model` - Vehicle model name
+- ✅ `brand` - Vehicle brand/manufacturer
+- ✅ `available` - Availability status flag
 
 ## 🎯 How to Use
 
-### For Your Operations Microservice:
-1. Start the application: `./mvnw spring-boot:run`
-2. The service will be available at `http://localhost:8080`
-3. Use the three endpoints to manage reservations
+### Start the Application:
+```bash
+./mvnw spring-boot:run
+```
+
+The service will be available at the configured port (see `application.yaml`).
 
 ### Request Format:
-All three endpoints accept the same request format:
+All three endpoints accept a VehicleRequest with a single vehicle object:
 ```json
 {
-  "reservations": ["1", "2", "3"]
+  "vehicle": {
+    "id": 1,
+    "model": "Tesla Model 3",
+    "brand": "Tesla",
+    "available": true
+  }
 }
 ```
 
-### Example Calls:
-```bash
-# Create reservation
-curl -X POST http://localhost:8080/api/reservations/create \
-  -H "Content-Type: application/json" \
-  -d '{"reservations": ["1", "2"]}'
+### Endpoints:
 
-# Update availability
-curl -X POST http://localhost:8080/api/reservations/update-availability \
-  -H "Content-Type: application/json" \
-  -d '{"reservations": ["1"]}'
-
-# Cancel reservation
-curl -X POST http://localhost:8080/api/reservations/cancel \
-  -H "Content-Type: application/json" \
-  -d '{"reservations": ["1"]}'
+**Create Reservation:**
+```
+POST /create-reservation
 ```
 
-## 📋 Important Configuration
-
-### Microservice Communication
-In `ReservationsImpl.java`, update this line based on your setup:
-```java
-private static final String VEHICLE_SERVICE_URL = "http://ms-vehicles";
+**Update Availability:**
+```
+POST /update-availability
 ```
 
-**Options:**
-- Direct IP: `http://192.168.1.100:8081`
+**Cancel Reservation:**
+```
+POST /cancel-reservation
+```
+
+## 📋 Configuration
+
+### Microservice URL
+In `application.yaml`, configure the vehicles microservice URL:
+```yaml
+vehicles-service:
+  url: http://ms-vehicles/vehicles/%s
+```
+
+Replace `http://ms-vehicles` with:
+- Direct IP: `http://192.168.1.100:8080`
 - Localhost: `http://localhost:8081`
-- Service name (if using Eureka): `http://ms-vehicles`
+- Service name (Eureka): `ms-vehicles`
 
-## 🚀 Next Steps
+The `%s` is a placeholder that gets replaced with: `reserve`, `update`, or `cancel`
 
-### On Your End (ms-operations):
-- [ ] Configure `application.yaml` with port and Eureka settings
-- [ ] Update the `VEHICLE_SERVICE_URL` with correct endpoint
-- [ ] Add input validation to ReservationRequest
-- [ ] Add logging (SLF4J with Spring)
-- [ ] Write unit tests
-- [ ] Consider adding date/time support later
+## 🚀 Architecture Pattern
 
-### On the Other Microservice (ms-vehicles):
-The other service needs to implement these endpoints:
+### Separation of Concerns:
+- **Controller** - Handles HTTP requests/responses
+- **Service** - Business logic (what operations exist)
+- **Facade** - Microservice communication (how to talk to other services)
 
-1. **POST /api/vehicles/reserve**
-   - Check if vehicle is available
-   - Mark as unavailable if available
-   - Handle multiple vehicles
-   - Return success/error message
-
-2. **POST /api/vehicles/update-availability**
-   - Update the availability field
-   - Accept a list of vehicles
-   - Update database
-   - Return success/error message
-
-3. **POST /api/vehicles/cancel**
-   - Mark vehicles as available again
-   - Handle cancellations
-   - Update database
-   - Return success/error message
-
-Each endpoint receives:
-```json
-{
-  "reservations": ["vehicleId1", "vehicleId2", "..."]
-}
-```
+This separation means:
+- Changing how you call the other MS? Update only the Facade
+- Changing business logic? Update only the Service
+- Each layer has ONE responsibility
 
 ## 📚 Learning Resources
 
@@ -136,24 +122,46 @@ The code includes:
 | Concept | Used For |
 |---------|----------|
 | `@Service` | Marks class as business logic component |
-| `@Autowired` | Auto-inject RestTemplate dependency |
+| `@Component` | Marks class as Spring-managed component (Facade) |
+| `@RequiredArgsConstructor` | Lombok generates constructor for dependency injection |
 | `RestTemplate` | Make HTTP calls to other microservice |
 | `@PostMapping` | Handle POST requests |
 | `@RequestBody` | Convert JSON to Java objects |
-| `ResponseEntity` | Return HTTP responses with status codes |
-| `try-catch` | Handle errors gracefully |
-| `@Data` (Lombok) | Auto-generate getters/setters/etc |
+| `@Value` | Read configuration from yaml |
+| `HttpStatusCodeException` | Catch HTTP errors (4xx and 5xx) |
+| `String.format()` | Build URLs by replacing placeholders |
+| `@Slf4j` | Lombok creates logger automatically |
 
 ## ✨ Code Quality
 
 - ✅ Follows Spring Boot conventions
-- ✅ Uses dependency injection (Spring managed)
-- ✅ Includes error handling
-- ✅ Has inline documentation
+- ✅ Clean separation of concerns (Controller → Service → Facade)
+- ✅ Dependency injection with `@RequiredArgsConstructor`
+- ✅ Proper error handling with specific exceptions
+- ✅ Configuration-driven (URL in yaml, not hardcoded)
+- ✅ Structured logging with SLF4J
 - ✅ Compiles successfully (mvn clean compile)
-- ✅ Ready for testing
+- ✅ Ready for testing with Postman
 
----
+## 📝 What ms-vehicles Should Provide
 
-**You're ready to start testing!** Once the other microservice is available, update the service URL and your system will work end-to-end.
+Your ms-operations calls these endpoints on ms-vehicles:
+
+1. **POST /vehicles/reserve**
+   - Receives: `{"vehicle": {...}}`
+   - Checks if vehicle is available
+   - Marks as unavailable if available
+   - Returns success or error message
+
+2. **POST /vehicles/update**
+   - Receives: `{"vehicle": {...}}`
+   - Updates availability status
+   - Returns success or error message
+
+3. **POST /vehicles/cancel**
+   - Receives: `{"vehicle": {...}}`
+   - Marks vehicle as available again
+   - Returns success or error message
+
+All endpoints receive the full Vehicle object.
 
