@@ -10,7 +10,16 @@ eureka:
     hostname: ms-operations
 
 vehicles-service:
-  url: http://ms-vehicles/vehicles/%s
+  url: http://localhost:2020/vehicles/%s
 
 server:
   port: 8082
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+
