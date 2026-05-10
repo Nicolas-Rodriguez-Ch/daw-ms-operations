@@ -25,7 +25,7 @@ public class VehicleServiceImpl implements VehicleService {
   public ReservationResponse updateReservation(VehicleRequest request) {
     Vehicle fetchedVehicle = vehiclesFacade.getVehicle(request.getVehicle().getId());
     VehicleValidator.validateForUpdate(fetchedVehicle);
-    Vehicle updatedVehicle = vehiclesFacade.updateVehicleStatus(request.getVehicle().getId(), request.getVehicle().getAvailable());
+    Vehicle updatedVehicle = vehiclesFacade.updateVehicleStatus(request.getVehicle().getId(), request.getVehicle().getStatus());
     return new ReservationResponse("Availability updated successfully", updatedVehicle);
   }
 

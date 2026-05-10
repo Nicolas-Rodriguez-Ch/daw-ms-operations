@@ -30,9 +30,9 @@ public class VehiclesFacade {
     }
   }
 
-  public Vehicle updateVehicleStatus(Long vehicleId, Boolean available) {
+  public Vehicle updateVehicleStatus(Long vehicleId, Boolean status) {
     try {
-      String url = String.format(vehiclesServiceUrl, "id/" + vehicleId + "/status?status=" + available);
+      String url = String.format(vehiclesServiceUrl, "id/" + vehicleId + "/status?status=" + status);
       log.info("Calling update status endpoint: {}", url);
       ResponseEntity<Vehicle> response = restTemplate.exchange(url, org.springframework.http.HttpMethod.PUT, null, Vehicle.class);
       return response.getBody();

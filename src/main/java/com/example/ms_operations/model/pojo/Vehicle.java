@@ -18,7 +18,7 @@ public class Vehicle {
   @JsonProperty(required = false)
   private String brand;
 
-  @Schema(description = "Vehicle availability status (true = available, false = reserved)", example = "true", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  @Schema(description = "Vehicle availability status (true = status, false = reserved)", example = "true", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
   @JsonProperty(required = false)
-  private Boolean available;
+  private Boolean status;
 }

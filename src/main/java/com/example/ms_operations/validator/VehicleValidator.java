@@ -11,7 +11,7 @@ public class VehicleValidator {
       throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Vehicle not found");
     }
 
-    if (!Boolean.TRUE.equals(vehicle.getAvailable())) {
+    if (!Boolean.TRUE.equals(vehicle.getStatus())) {
       throw new HttpClientErrorException(
           HttpStatus.valueOf(422),
           "Vehicle is not available for reservation");
@@ -23,7 +23,7 @@ public class VehicleValidator {
       throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Vehicle not found");
     }
 
-    if (Boolean.TRUE.equals(vehicle.getAvailable())) {
+    if (Boolean.TRUE.equals(vehicle.getStatus())) {
       throw new HttpClientErrorException(
           HttpStatus.valueOf(422),
           "Cannot cancel reservation: vehicle is not currently reserved");
