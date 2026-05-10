@@ -1,10 +1,10 @@
 package com.example.ms_operations.facade;
 
-import com.example.ms_operations.model.request.VehicleRequest;
-import com.example.ms_operations.model.response.ReservationResponse;
+import com.example.ms_operations.model.pojo.Vehicle;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
@@ -19,44 +19,25 @@ public class VehiclesFacade {
 
   private final RestTemplate restTemplate;
 
-  public ReservationResponse reserve(VehicleRequest request) {
+  public Vehicle getVehicle(Long vehicleId) {
+    log.info("Getting vehicle information for id: {}", vehicleId);
     try {
-      String url = String.format(vehiclesServiceUrl, "reserve");
-      log.info("Calling reserve endpoint: {}", url);
-      ReservationResponse response = restTemplate.postForObject(url, request, ReservationResponse.class);
-      String message = "Reservation created successfully";
-      assert response != null;
-      return new ReservationResponse(message, response.getVehicle());
+      String url = String.format(vehiclesServiceUrl, "id/" + vehicleId);
+      Vehicle vehicle = restTemplate.getForObject(url, Vehicle.class);
+      return vehicle;
     } catch (HttpStatusCodeException e) {
-      log.error("Http Error {}, vehicle with id: {}", e.getMessage(), request.getVehicle().getId());
       throw e;
     }
   }
 
-  public ReservationResponse update(VehicleRequest request) {
+  public Vehicle updateVehicleStatus(Long vehicleId, Boolean available) {
     try {
-      String url = String.format(vehiclesServiceUrl, "update");
-      log.info("Calling update endpoint: {}", url);
-      ReservationResponse response = restTemplate.postForObject(url, request, ReservationResponse.class);
-      String message = String.format("Availability for vehicle with id: %d updated successfully", request.getVehicle().getId());
-      assert response != null;
-      return new ReservationResponse(message, response.getVehicle());
+      String url = String.format(vehiclesServiceUrl, "id/" + vehicleId + "/status?status=" + available);
+      log.info("Calling update status endpoint: {}", url);
+      ResponseEntity<Vehicle> response = restTemplate.exchange(url, org.springframework.http.HttpMethod.PUT, null, Vehicle.class);
+      return response.getBody();
     } catch (HttpStatusCodeException e) {
-      log.error("Http error {} updating the availability of vehicle with id: {}", e.getMessage(), request.getVehicle().getId());
-      throw e;
-    }
-  }
-
-  public ReservationResponse cancel(VehicleRequest request) {
-    try {
-      String url = String.format(vehiclesServiceUrl, "cancel");
-      log.info("Calling cancel endpoint: {}", url);
-      ReservationResponse response = restTemplate.postForObject(url, request, ReservationResponse.class);
-      String message = String.format("Reservation for vehicle with id: %d cancelled successfully", request.getVehicle().getId());
-      assert response != null;
-      return new ReservationResponse(message, response.getVehicle());
-    } catch (HttpStatusCodeException e) {
-      log.error("Http Error {} cancelling reservation for vehicle with id: {}", e.getMessage(), request.getVehicle().getId());
+      log.error("Http error {} updating vehicle status for id: {}", e.getMessage(), vehicleId);
       throw e;
     }
   }
